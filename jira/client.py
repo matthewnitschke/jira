@@ -272,15 +272,8 @@ class JiraCookieAuth(AuthBase):
         )
         r.raise_for_status()
 
-    def handle_401(self, response: requests.Response, **kwargs) -> requests.Response:
-        """Refresh cookies if the session cookie has expired. Then retry the request.
-
-        Args:
-            response (requests.Response): the response with the possible 401 to handle
-
-        Returns:
-            requests.Response
-        """
+    def handle_401(self, response: requests.Response, **kwargs):
+        """Refresh cookies if the session cookie has expired. Then retry the request."""
         if (
             response.status_code == 401
             and self._retry_counter_401 < self._max_allowed_401_retries
@@ -323,11 +316,11 @@ class TokenAuth(AuthBase):
 class JIRA:
     """User interface to Jira.
 
-    Clients interact with Jira by constructing an instance of this object and calling its methods.
-    For addressable resources in Jira -- those with "self" links -- an appropriate subclass of :py:class:`jira.resources.Resource`
-    will be returned with customized ``update()`` and ``delete()`` methods, along with attribute access to fields.
-    This means that calls of the form ``issue.fields.summary`` will be resolved into the proper lookups to return the JSON value at that
-    mapping. Methods that do not return resources will return a dict constructed from the JSON response or a scalar value;
+    Clients interact with Jira by constructing an instance of this object and calling its methods. For addressable resources in Jira
+    -- those with "self" links -- an appropriate subclass of :py:class:`jira.resources.Resource` will be returned with customized
+    ``update()`` and ``delete()`` methods, along with attribute access to fields. This means that calls of the form
+    ``issue.fields.summary`` will be resolved into the proper lookups to return the JSON value at that mapping. Methods that do not return
+    resources will return a dict constructed from the JSON response or a scalar value;
     see each method's documentation for details on what that method returns.
 
     Without any arguments, this client will connect anonymously to the Jira instance started by the Atlassian Plugin SDK from one of the
@@ -597,11 +590,7 @@ class JIRA:
 
     @property
     def server_url(self) -> str:
-        """Return the server url
-
-        Returns:
-            str
-        """
+        """Return the server url"""
         return str(self._options["server"])
 
     @property
@@ -932,10 +921,7 @@ class JIRA:
 
     @translate_resource_args
     def add_attachment(
-        self,
-        issue: Union[str, int],
-        attachment: Union[str, BufferedReader],
-        filename: str = None,
+        self, issue: str, attachment: Union[str, BufferedReader], filename: str = None
     ) -> Attachment:
         """Attach an attachment to an issue and returns a Resource for it.
 
@@ -943,7 +929,7 @@ class JIRA:
         The user is still responsible for tidying up (e.g., closing the file, killing the socket, etc.)
 
         Args:
-            issue (Union[str, int]): the issue to attach the attachment to
+            issue (str): the issue to attach the attachment to
             attachment (Union[str,BufferedReader]): file-like object to attach to the issue, also works if it is a string with the filename.
             filename (str): optional name for the attached file. If omitted, the file object's ``name`` attribute is used. If you acquired
               the file-like object by any other method than ``open()``, make sure that a name is specified in one way or the other.
@@ -1203,7 +1189,7 @@ class JIRA:
             name (str): name of the new filter
             description (str): useful human readable description of the new filter
             jql (str): query string that defines the filter
-            favourite (bool): whether to add this filter to the current user's favorites
+            favourite (bool): Add this filter to the current user's favorites (Default: None)
 
         Returns:
             Filter
@@ -1238,7 +1224,7 @@ class JIRA:
             name (Optional[str]): name of the new filter
             description (Optional[str]): useful human readable description of the new filter
             jql (Optional[str]): query string that defines the filter
-            favourite (Optional[bool]): whether to add this filter to the current user's favorites
+            favourite (Optional[bool]): add this filter to the current user's favorites (Default: None)
 
         """
         filter = self.filter(filter_id)
@@ -1437,7 +1423,7 @@ class JIRA:
         By default, the client will immediately reload the issue Resource created by this method in order to return a complete
         Issue object to the caller; this behavior can be controlled through the 'prefetch' argument.
 
-        Jira projects may contain many issue types. Some issue screens have different requirements for fields in a new issue.
+        Jira projects may contain many different issue types. Some issue screens have different requirements for fields in a new issue.
         This information is available through the 'createmeta' method.
         Further examples are available here: https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+Create+Issue
 
@@ -1485,7 +1471,6 @@ class JIRA:
             field_list (List[Dict[str, Any]]): a list of dicts each containing field names and the values to use. Each dict
               is an individual issue to create and is subject to its minimum requirements.
             prefetch (bool): reload the created issue Resource so all of its data is present in the value returned (Default: True)
-
         Returns:
             List[Dict[str, Any]]
 
@@ -1634,7 +1619,6 @@ class JIRA:
             fields (Dict[str, Any]): a dict containing field names and the values to use. If present, all other keyword arguments
               will be ignored
             prefetch (bool): reload the created issue Resource so all of its data is present in the value returned (Default: True)
-
         Returns:
             Issue
         """
@@ -2400,6 +2384,9 @@ class JIRA:
 
     def issue_link_types(self, force: bool = False) -> List[IssueLinkType]:
         """Get a list of issue link type Resources from the server.
+
+        Args:
+            force (bool): force an update of the cached IssueLinkTypes. (Default: False)
 
         Returns:
             List[IssueLinkType]
@@ -3208,8 +3195,8 @@ class JIRA:
             startAt (int): index of the first user to return.
             maxResults (int): maximum number of users to return.
               If maxResults evaluates as False, it will try to get all items in batches.
-            includeActive (bool): If true, then active users are included in the results. (Default: True)
-            includeInactive (bool): If true, then inactive users are included in the results. (Default: False)
+            includeActive (bool): Active users will be included in the results. (Default: True)
+            includeInactive (bool): Inactive users will be included in the results. (Default: False)
             query (Optional[str]): Search term. It can just be the email.
 
         Returns:
@@ -3278,8 +3265,8 @@ class JIRA:
             description (str): a description of the version
             releaseDate (Optional[Any]): the release date assigned to the version
             startDate (Optional[Any]): The start date for the version
-            archived (bool): Denotes whether a version should be archived. (Default: False)
-            released (bool): Denotes whether a version is released. (Default: False)
+            archived (bool): Create an archived version. (Default: False)
+            released (bool): Create a released version. (Default: False)
 
         Returns:
             Version
@@ -3767,11 +3754,11 @@ class JIRA:
         If you call reindex() without any parameters it will perform a background reindex only if Jira thinks it should do it.
 
         Args:
-            force (bool): reindex even if Jira doesn't say this is needed, False by default.
-            background (bool): reindex in background, slower but does not impact the users, defaults to True.
+            force (bool): reindex even if Jira doesn't say this is needed. (Default: False)
+            background (bool): reindex in background, slower but does not impact the users. (Default: True)
 
         Returns:
-            bool: Returns True if reindexing is in progress or not needed, or False.
+            bool: True if reindexing is in progress or not needed
         """
         # /secure/admin/IndexAdmin.jspa
         # /secure/admin/jira/IndexProgress.jspa?taskId=1
@@ -3806,7 +3793,14 @@ class JIRA:
         return False
 
     def backup(self, filename: str = "backup.zip", attachments: bool = False):
-        """Will call jira export to backup as zipped xml. Returning with success does not mean that the backup process finished."""
+        """Will call jira export to backup as zipped xml. Returning with success does not mean that the backup process finished.
+
+        Args:
+            filename (str): the filename for the backup (Default: "backup.zip")
+            attachments (bool): Also backup attachments (Default: False)
+        Returns:
+            Union[bool, int]: Returns True if successful else it returns the statuscode of the Response
+        """
         payload: Any  # _session.post is pretty open
         if self._is_cloud:
             url = self.server_url + "/rest/backup/1/export/runbackup"
@@ -4287,9 +4281,9 @@ class JIRA:
             directoryId (int): The directory ID the new user should be a part of (Default: 1)
             password (Optional[str]): Optional, the password for the new user
             fullname (Optional[str]): Optional, the full name of the new user
-            notify (bool): Whether to send a notification to the new user. (Default: False)
-            active (bool): Whether to make the new user active upon creation. (Default: True)
-            ignore_existing (bool): Whether to ignore and existing user. (Default: False)
+            notify (bool): Send a notification to the new user. (Default: False)
+            active (bool): Make the new user active upon creation. (Default: True)
+            ignore_existing (bool): Ignore existing users. (Default: False)
             application_keys (Optional[list]): Keys of products user should have access to
 
         Raises:
