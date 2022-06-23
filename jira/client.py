@@ -4476,6 +4476,47 @@ class JIRA:
             params,
             base=self.AGILE_BASE_URL,
         )
+    
+    def get_issues_for_board(
+        self,
+        board_id: int,
+        startAt: int = 0,
+        maxResults: int = 50,
+        jql: str = None,
+        validateQuery: bool = True,
+        fields: list = None,
+    ) -> ResultList[Issue]:
+        """Returns all issues from a board, for a given board Id.
+
+        Args:
+            startAt: The starting index of the returned issues. Base index: 0.
+            maxResults: The maximum number of issues to return per page. Default: 50
+            jql: Filters results using a JQL query. If you define an order in your JQL query, it will override the default order of the returned issues.
+            validateQuery: Specifies whether to validate the JQL query or not.
+            fields: The list of fields to return for each issue. By default, all navigable and Agile fields are returned.
+
+        Returns:
+            ResultList[Issue]
+        """
+
+        params = {}
+        if jql:
+            params["jql"] = quote(jql)
+        if validateQuery:
+            params["validateQuery"] = validateQuery
+        if fields:
+            params["fields"] = quote(fields)
+
+        return self._fetch_pages(
+            Issue,
+            "issues",
+            f"board/{board_id}/issue",
+            startAt,
+            maxResults,
+            params,
+            base=self.AGILE_BASE_URL,
+        )
+
 
     @translate_resource_args
     def sprints(
